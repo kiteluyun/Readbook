@@ -1,0 +1,165 @@
+<script src="../static/js/js/vue.js"></script>
+        <div class="col-sm-3 col-12" style="padding: 0px 10px;">
+            <div class="col-12 search-bar form-group row" style="margin-left:0;">
+                <div class="col-8">
+                    <input type="text" class="form-control" id="keyword" placeholder="请输入关键字" onkeyup="doSearch(event)" />
+                </div>
+                <div class="col-4" style="text-align:right;">
+                    <button type="button" class="btn btn-primary" onclick="doSearch(null)">搜索</button>
+                </div>
+            </div>
+
+            <div class="col-12 side">
+                <div class="tip">最新文章</div>
+                <ul id="last">
+
+                </ul>
+            </div>
+
+            <div class="col-12 side">
+                <div class="tip">最多阅读</div>
+                <ul id="most">
+
+                </ul>
+            </div>
+
+            <div class="col-12 side" id="fixedmenu">
+                <div class="tip">特别推荐</div>
+                <ul id="recommended">
+
+                </ul>
+                <div class="tip" id="toTop" onclick="topFunction()" style="display: none; background-color=#3276b1;height: 40px; text-align: center; cursor: pointer">
+                    回到顶部
+                </div>
+
+                <!-- 添加一个返回顶部的按钮 -->
+            </div>
+
+        </div>
+
+<script type="text/javascript">
+    function doSearch(e) {
+        if (e != null && e.keyCode != 13) {
+            return false;
+        }
+
+        var keyword = $.trim($("#keyword").val());
+        if (keyword.length == 0 || keyword.length > 10 || keyword.indexOf('%')>=0 ) {
+            bootbox.alert({'title':'错误提示', 'message':"你输入的关键字不合法"});
+            $("#keyword").focus();
+            return false;
+        }
+        location.href = '/search/1-' + keyword;
+    }
+
+    // 利用JS来截取字符串，中文1个，英文0.5个。
+    function truncate(headline, length) {
+        var count = 0;
+        var output = '';
+        for (var i in headline) {
+            output += headline.charAt(i);
+            var code = headline.charCodeAt(i);
+            if (code <= 128) {
+                count += 0.5;
+            }
+            else {
+                count += 1;
+            }
+            if (count > length) {
+                break;
+            }
+        }
+        return output + '...';
+    }
+
+    // 在jQuery中表示文档加载完成后开始执行（不需要按钮或事件触发），window.load=function() {}
+    $(document).ready(function () {
+        // 第一步：发送Ajax请求去访问/recommend接口，获取JSON
+        $.get('/recommend', function (data) {
+            // 获取响应并动态填充到对应的推荐栏中
+            var lastData = data[0];
+            var mostData = data[1];
+            var recommendedData = data[2];
+            console.log(lastData)
+
+            for(var i in lastData){
+            var articleid = lastData[i][0];
+            var title = truncate(lastData[i][1],80);
+            var id = parseInt(i)+1;
+            $("#last").append('<li><a href="/article/'+articleid+'">'+id+'.&nbsp;&nbsp;'+title+'</a></li>');
+            }
+            for(var i in mostData){
+            var articleid = mostData[i][0];
+            var title = truncate(mostData[i][1],80);
+            var id = parseInt(i)+1;
+            $("#most").append('<li><a href="/article/'+articleid+'">'+id+'.&nbsp;&nbsp;'+title+'</a></li>');
+            }
+
+            for(var i in recommendedData){
+            var articleid = recommendedData[i][0];
+            var title = truncate(recommendedData[i][1],80);
+            var id = parseInt(i)+1;
+            $("#recommended").append('<li><a href="/article/'+articleid+'">'+id+'.&nbsp;&nbsp;'+title+'</a></li>');
+            }
+
+
+        })
+    });
+
+<!--    $(document).ready(function(){-->
+<!--        // 利用浏览器的user-agent属性判断浏览器类型-->
+<!--        var userAgentInfo = navigator.userAgent.toLowerCase();-->
+<!--        var agents = ["android", "iphone", "symbianOS", "windows phone", "ipad", "ipod"];-->
+<!--        var flag = true;    // 表示是PC端-->
+<!--        for (var v = 0; v < agents.length; v++) {-->
+<!--            if (userAgentInfo.indexOf(agents[v]) >= 0) {-->
+<!--                flag = false;   // 表示这是移动端-->
+<!--                break;-->
+<!--            }-->
+<!--        }-->
+
+<!--        // 是PC端时才进行右侧停靠-->
+<!--        if (flag == true) {-->
+<!--            var fixedDiv = document.getElementById("fixedmenu");-->
+<!--            var H = 0;-->
+<!--            var Y = fixedDiv;-->
+<!--            while (Y) {-->
+<!--                H += Y.offsetTop;-->
+<!--                Y = Y.offsetParent;-->
+<!--            }-->
+
+<!--            window.onscroll = function () {-->
+<!--                var s = document.body.scrollTop || document.documentElement.scrollTop;-->
+<!--                if (s > H + 500) {-->
+<!--                    fixedDiv.style = "position:fixed; top:0; margin-top:0; width: 306px;";-->
+<!--                } else {-->
+<!--                    fixedDiv.style = "";-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
+<!--    });-->
+
+
+
+
+    // 获取页面滚动的位置
+window.onscroll = function() {
+    scrollFunction();
+};
+
+function scrollFunction() {
+    var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop > 0) {
+        document.getElementById("toTop").style.display = "block";
+    } else {
+        document.getElementById("toTop").style.display = "none";
+    }
+}
+
+// 点击按钮返回顶部
+function topFunction() {
+    document.body.scrollTop = 0; // 对Safari
+    document.documentElement.scrollTop = 0; // 对Chrome, Firefox, IE 和 Opera
+}
+
+</script>

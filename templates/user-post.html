@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+{% block content %}
+		
+		<script type="text/javascript">
+		    var ue = UE.getEditor('content', {
+		        initialFrameHeight: 400,
+		        // autoHeightEnabled: true,
+				 autoHeightEnabled: false,
+		        serverUrl: '/uedit',
+
+		    });
+
+
+</script>
+
+		<!-- 中部区域布局 -->
+		<div class="container" style="margin-top: 20px; background-color: white; padding: 20px;">
+		    <div class="row form-group">
+		        <label for="headline" class="col-1">文章标题</label>
+		        <input type="text" class="col-11" id="headline"/>
+		    </div>
+			<div class="container">
+		    <div class="row">
+<!--		    <script id="content" name="content" type="text/plain"></script>-->
+<!--				<div></div>-->
+
+					<textarea  id="content" class="container" style="width: 100%;"></textarea>
+
+		    </div></div>
+		    <div class="row form-group" style="margin-top: 20px; padding-top: 10px;">
+		        <label for="type" class="col-1">类型：</label>
+		        <select class="form-control col-2" id="type">
+		            <option value="1">PHP开发</option>
+		            <option value="2">Java开发</option>
+		            <option value="3">Python开发</option>
+		            <option value="4">Web前端</option>
+		            <option value="5">测试开发</option>
+		            <option value="6">数据科学</option>
+		            <option value="7">网络安全</option>
+		            <option value="8">大数据</option>
+		        </select>
+		        <label class="col-1"></label>
+		        <button class="form-control btn-default col-2" onclick="doDraft()">保存草稿</button>
+		        <button class="form-control btn-primary col-2" onclick="doPost()">发布文章</button>
+		        </select>
+		    </div>
+		</div>
+
+
+<script>
+       // 发布用户投稿
+    function doUserPost() {
+        var headline = $.trim($("#headline").val());
+        var contentPlain = UE.getEditor("content").getContentTxt();
+
+        if (headline.length < 5) {
+            bootbox.alert({title:"错误提示", message:"标题不能少于5个字"});
+            return false;
+        }
+        else if (contentPlain.length < 100) {
+            bootbox.alert({title:"错误提示", message:"内容不能低于100个字"});
+            return false;
+        }
+
+        // 发送请求时，带上articleid
+        var param = "headline=" + headline;
+            param += "&content=" + encodeURIComponent(UE.getEditor("content").getContent());
+            param += "&type=" + $("#type").val();
+            param += "&drafted=0&checked=0&articleid=0";
+        $.post('/article', param, function (data) {
+            if (data == 'perm-denied') {
+                bootbox.alert({title:"错误提示", message:"权限不足，无法投稿."});
+            }
+            else if (data == 'post-fail') {
+                bootbox.alert({title:"错误提示", message:"投稿失败，请联系管理员."});
+            }
+            else if (data.match(/^\d+$/)) {
+                bootbox.alert({title:"信息提示", message:"恭喜你，投稿成功，审核后即可发布."});
+                setTimeout(function () {
+                    location.href = '/user/article';  // 跳转到我的文章页面
+                }, 1000);
+            }
+            else {
+                bootbox.alert({title:"错误提示", message:"投稿失败，可能没有权限."});
+            }
+        });
+    }
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+{% endblock %}

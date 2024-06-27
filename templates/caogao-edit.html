@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<script type="text/javascript">
+		    var ue = UE.getEditor('content', {
+		        initialFrameHeight: 400,
+		        // autoHeightEnabled: true,
+				 autoHeightEnabled: false,
+		        serverUrl: '/uedit',
+
+		    });
+
+
+</script>
+
+
+<div class="container" style="margin-top: 20px; background-color: white; padding: 20px;">
+		    <div class="row form-group">
+		        <label for="headline" class="col-1">文章标题</label>
+		        <input type="text" class="col-11" id="headline" value="{{result[0].title}}"/>
+		    </div>
+			<div class="container">
+		    <div class="row">
+<!--		    <script id="content" name="content" type="text/plain"></script>-->
+<!--				<div></div>-->
+
+					<textarea  id="content" class="container" style="width: 100%;">
+                        {{result[0].content | safe}}
+                    </textarea>
+
+		    </div></div>
+		    <div class="row form-group" style="margin-top: 20px; padding-top: 10px;">
+		        <label for="type" class="col-1">类型：</label>
+		        <select class="form-control col-2" id="type">
+		            <option value="1" {% if result[0].type==1 %}selected {% endif %}>PHP开发</option>
+		            <option value="2" {% if result[0].type==2 %}selected {% endif %}>Java开发</option>
+		            <option value="3" {% if result[0].type==3 %}selected {% endif %}>Python开发</option>
+		            <option value="4" {% if result[0].type==4 %}selected {% endif %}>Web前端</option>
+		            <option value="5" {% if result[0].type==5 %}selected {% endif %}>测试开发</option>
+		            <option value="6" {% if result[0].type==6 %}selected {% endif %}>数据科学</option>
+		            <option value="7" {% if result[0].type==7 %}selected {% endif %}>网络安全</option>
+		            <option value="8" {% if result[0].type==8 %}selected {% endif %}>大数据</option>
+		        </select>
+		        <label class="col-3"></label>
+		        <button class="form-control btn-primary col-2" onclick="doEdit()">提交修改</button>
+		        </select>
+		    </div>
+		</div>
+
+<script>
+    function doEdit() {
+
+        var headline = $.trim($("#headline").val());
+        var contentPlain = stripTags(UE.getEditor("content").getContentTxt());
+
+
+        if (headline.length < 5) {
+            bootbox.alert({title:"错误提示", message:"标题不能少于5个字"});
+            return false;
+        }
+        else if (contentPlain.length < 100) {
+            bootbox.alert({title:"错误提示", message:"内容不能低于100个字"});
+            return false;
+        }
+
+        var param = "headline=" + headline;
+            param += "&content=" + encodeURIComponent(stripTags(UE.getEditor("content").getContentTxt()));
+            param += "&type=" + $("#type").val();
+            param += "&articleid={{result[0].articleid}}";
+
+        $.post('/edit/caogao', param, function (data) {
+            if (data == 'perm-denied') {
+                bootbox.alert({title:"错误提示", message:"权限不足，无法修改"});
+            }
+            else if (data == 'post-fail') {
+                bootbox.alert({title:"错误提示", message:"修改失败，请联系管理员."});
+            }
+            else if (data.match(/^\d+$/)) {
+                bootbox.alert({title:"信息提示", message:"恭喜你，文章修改成功."});
+                setTimeout(function () {
+                    window.history.back();
+                }, 1000);
+            }
+            else {
+                bootbox.alert({title:"错误提示", message:"修改失败，可能没有权限."});
+            }
+        });
+    }
+function stripTags(str) {
+  return str.replace(/<[^>]*>/g, '');
+}
+
+
+
+</script>
+{% endblock %}

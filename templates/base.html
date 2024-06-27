@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/js/bootbox/bootbox.min.js"></script>
+</head>
+<body>
+bootbox.alert('你输入的关键字不合法')；
+bootbox.alert({title:'错误提示',message'你输入的关键字不合法'})
+
+bootbox.confirm("你确定要删除这条数据吗？",function(result){
+if(result == true){
+//表示单击的是确认中的“确定按钮”
+}
+})
+
+</body>
+
+<script>
+    function truncate(title,length){
+            var count=0;
+            var output="",
+            for(var i in title){
+                output+=title.charAt(i)
+                code+=title.charCodeAt(i)
+                if (code<=128){
+                count +=0.5;
+                 }
+                else{
+             count+=1;
+         }
+             if(count>length){
+    break;
+    }
+    }
+    return output+"...";
+    }
+
+
+    $(document).ready(function(){
+    var lastData = data[0];
+    var mostData = data[1]:
+    var recommended = data[2]:
+
+    for(var i in lastData){
+    var articleid = lastDate[i][0];
+    var title = [truncate(lastData[i][1],14);
+    var id = parseInt(i)+1
+    $("#last").append('<li><a href="/article'+articleid+'">'+id+'.&nbsp:&nbsp'+title+'</a></li>');
+    }
+    for(var i in mostData){
+    var articleid = mostDate[i][0];
+    var title = [truncate(mostData[i][1],14);
+    var id = parseInt(i)+1
+    $("#most").append('<li><a href="/article'+articleid+'">'+id+'.&nbsp:&nbsp'+title+'</a></li>');
+    }
+    for(var i in recommended ){
+    var articleid = recommended[i][0];
+    var title = [truncate(recommended[i][1],14);
+    var id = parseInt(i)+1
+    $("#last").append('<li><a href="/article'+articleid+'">'+id+'.&nbsp:&nbsp'+title+'</a></li>');
+    }
+    })
+</script>
+</html>

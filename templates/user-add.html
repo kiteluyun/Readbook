@@ -1,0 +1,163 @@
+{% extends "layout.html" %}
+{% block content %}
+		
+<script type="text/javascript">
+		    var ue = UE.getEditor('content', {
+		        initialFrameHeight: 400,
+		        // autoHeightEnabled: true,
+				 autoHeightEnabled: false,
+		        serverUrl: '/uedit',
+		        enterTag : 'br'
+		    });
+</script>
+
+		<!-- 中部区域布局 -->
+		<div class="container" style="margin-top: 20px; background-color: white; padding: 20px;">
+		    <div class="row form-group">
+		        <label for="headline" class="col-1">文章标题</label>
+		        <input type="text" class="col-11" id="headline"/>
+		    </div>
+			<div class="container">
+		    <div class="row">
+				<script id="content" class="container" style="width: 100%;"></script>
+
+
+
+		    </div></div>
+		    <div class="row form-group" style="margin-top: 20px; padding-top: 10px;">
+		        <label for="type" class="col-1">类型：</label>
+		        <select class="form-control col-2" id="type">
+		            <option value="1">PHP开发</option>
+		            <option value="2">Java开发</option>
+		            <option value="3">Python开发</option>
+		            <option value="4">Web前端</option>
+		            <option value="5">测试开发</option>
+		            <option value="6">数据科学</option>
+		            <option value="7">网络安全</option>
+		            <option value="8">大数据</option>
+		        </select>
+		        <label class="col-1"></label>
+<!--		        <button class="form-control btn-default col-2" onclick="doDraft()">保存草稿</button>-->
+		        <button class="form-control btn-primary col-2" onclick="doPost()">发布投稿</button>
+		        </select>
+		    </div>
+		</div>
+
+
+<script>
+    var ARTICLEID = 0;  // 定义全局变量用于临时保存articleid
+
+    function doPost() {
+        var headline = $.trim($("#headline").val());
+        var contentPlain = stripTags(UE.getEditor("content").getContentTxt());
+
+        if (headline.length < 5) {
+            bootbox.alert({title:"错误提示", message:"标题不能少于5个字"});
+            return false;
+        }
+        else if (contentPlain.length < 100) {
+            bootbox.alert({title:"错误提示", message:"内容不能低于100个字"});
+            return false;
+        }
+
+        var param = "headline=" + headline;
+            param += "&content=" + encodeURIComponent(stripTags(UE.getEditor("content").getContentTxt()));
+            param += "&type=" + $("#type").val();
+            param += "&drafted=0&checked=0&articleid=" + ARTICLEID;
+        $.post('/user_article', param, function (data) {
+            if (data == 'perm-denied') {
+                bootbox.alert({title:"错误提示", message:"权限不足，无法发布文章."});
+            }
+            else if (data == 'post-fail') {
+                bootbox.alert({title:"错误提示", message:"文章发布失败，请联系管理员."});
+            }
+            else if (data.match(/^\d+$/)) {
+                bootbox.alert({title:"信息提示", message:"恭喜你，文章发布成功."});
+                setTimeout(function () {
+
+                    location.href = '/user/article';
+                }, 1000);
+            }
+            else {
+                bootbox.alert({title:"错误提示", message:"文章发布失败，可能没有权限."});
+            }
+        });
+    }
+
+    // 保存草稿
+    function doDraft() {
+        var headline = $.trim($("#headline").val());
+        var contentPlain = stripTags(UE.getEditor("content").getContentTxt());
+
+        if (headline.length < 5) {
+            bootbox.alert({title:"错误提示", message:"草稿标题不能少于5个字"});
+            return false;
+        }
+        else if (contentPlain.length < 10) {
+            bootbox.alert({title:"错误提示", message:"草稿内容不能低于10个字"});
+            return false;
+        }
+
+        var param = "headline=" + headline;
+            param += "&content=" + encodeURIComponent(stripTags(UE.getEditor("content").getContentTxt()));
+            param += "&type=" + $("#type").val();
+            param += "&credit=" + $("#credit").val();
+            param += "&drafted=1&checked=0&articleid=" + ARTICLEID;
+        $.post('/article', param, function (data) {
+            if (data == 'perm-denied') {
+                bootbox.alert({title:"错误提示", message:"权限不足，无法保存草稿."});
+            }
+            else if (data == 'post-fail') {
+                bootbox.alert({title:"错误提示", message:"保存草稿失败，请联系管理员."});
+            }
+            else if (data.match(/^\d+$/)) {
+                bootbox.alert({title:"信息提示", message:"恭喜你，草稿保存成功."});
+                // 保存草稿后，不跳转页面，重新为全局变量赋值。
+                setTimeout(function () {
+
+                    location.href = '/user/draft';
+                }, 1000);
+                ARTICLEID = parseInt(data);
+            }
+            else {
+                bootbox.alert({title:"错误提示", message:"保存草稿失败，可能没有权限."});
+            }
+        });
+    }
+
+
+function removeParagraphTags(container) {
+  var pTags = container.getElementsByTagName('p');
+  for (var i = pTags.length - 1; i >= 0; i--) {
+    var p = pTags[i];
+    var parent = p.parentNode;
+    // 将p标签的内容移到其父节点，然后移除p标签
+    while (p.firstChild) {
+      parent.insertBefore(p.firstChild, p);
+    }
+    parent.removeChild(p);
+  }
+}
+
+var editorContainer = document.getElementById('content');
+removeParagraphTags(editorContainer);
+
+function stripTags(str) {
+  return str.replace(/<[^>]*>/g,'');
+}
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+{% endblock %}

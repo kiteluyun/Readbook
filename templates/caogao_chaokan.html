@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+
+		<link rel="stylesheet" href="//at.alicdn.com/t/c/font_4533016_k7pw2tcy2pk.css" />
+		<link rel="stylesheet" href="//at.alicdn.com/t/c/font_4533016_982yhnhzg0h.css" />
+		<link rel="stylesheet" href="//at.alicdn.com/t/c/font_4533016_h3l7pg763vq.css" />
+
+<script>
+
+
+</script>
+
+<div class="container">
+<div class="row">
+       <div class="col-sm-9 col-12" id="left" style="padding: 0px;">
+            <div class="col-12 row article-detail" style="margin-left:0;">
+
+                <div class="col-9 title">
+                    {{article.title}}
+                </div>
+                <div class="col-3 favorite">
+                </div>
+                <div class="col-12 info">
+                    作者：{{article.nickname}}&nbsp;&nbsp;&nbsp;类别：{{article_type[article.type | string]}}&nbsp;&nbsp;&nbsp;
+                    日期：{{article.createtime}}&nbsp;&nbsp;&nbsp;
+
+                </div>
+                    <div class="col-12 content" id="content" style=" min-height:300px;">
+						<p style="font-size:18px;text-indent: 2em;">{{article.content}}</p>
+                    </div>
+            </div>
+		   </div>
+
+
+	        {# 按需引入side.html，首页需要 #}
+        {% include 'side.html' %}
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}
